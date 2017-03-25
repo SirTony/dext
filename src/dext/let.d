@@ -1,7 +1,7 @@
 module dext.let;
 
 /++ Unpacks forward ranges, input ranges, static arrays,
-dynamic arrays, tuples, and uder-defined types (via deconstructor methods)
+dynamic arrays, tuples, and user-defined types (via deconstructor methods)
 into the specified variables.
 
 Authors: Tony J. Hudgins
@@ -47,26 +47,18 @@ auto let( Ts... )( ref Ts params )
     alias TPointers = staticMap!( toPointer, Ts );
     alias TCommon = CommonType!Ts;
 
-    template hasDeconstructorMethod( T )
-    {
-        enum hasDeconstructorMethod = is( typeof( {
-            static assert( __traits( hasMember, T, "deconstruct" ) );
-            
-            enum method = &__traits( getMember, T, "deconstruct" );
-            static assert( isCallable!method );
-            static assert( is( ReturnType!method == void ) );
-            
-            alias params = Parameters!method;
-            static assert( params.length == Ts.length );
-            static assert( allSatisfy!( isPointer, params ) );
-            static assert( is( params == TPointers ) );
-        } ) );
-    }
-    
-    template isAssignableFrom( T )
-    {
-        enum isAssignableFrom( U ) = is( U : T );
-    }
+    enum hasDeconstructorMethod( T ) = is( typeof( {
+        static assert( __traits( hasMember, T, "deconstruct" ) );
+        
+        enum method = &__traits( getMember, T, "deconstruct" );
+        static assert( isCallable!method );
+        static assert( is( ReturnType!method == void ) );
+        
+        alias params = Parameters!method;
+        static assert( params.length == Ts.length );
+        static assert( allSatisfy!( isPointer, params ) );
+        static assert( is( params == TPointers ) );
+    } ) );
     
     static struct LetAssigner
     {
