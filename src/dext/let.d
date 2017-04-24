@@ -1,6 +1,7 @@
 module dext.let;
 
-/++ Unpacks forward ranges, input ranges, static arrays,
+/++
+Unpacks forward ranges, input ranges, static arrays,
 dynamic arrays, tuples, and user-defined types (via deconstructor methods)
 into the specified variables.
 
@@ -90,8 +91,6 @@ auto let( Ts... )( ref Ts params )
                 foreach( i, t; Ts )
                     *this.pointers[i] = cast(t)arr[i];
             }
-            
-
         }
         
         void opAssign( R )( R r )

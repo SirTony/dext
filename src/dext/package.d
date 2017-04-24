@@ -1,3 +1,6 @@
 module dext;
 
-public import dext.let;
+public {
+    import dext.let;
+    import dext.record;
+}
