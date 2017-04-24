@@ -3,6 +3,8 @@ module dext.record;
 private {
     import std.traits : isSomeString;
 
+    alias toPointer( T ) = T*;
+
     // This catches types and is needed so Filter!( isIdentifier, T )
     // works correctly
     enum isIdentifier( T ) = false;
@@ -55,7 +57,7 @@ private {
         foreach( pair; typeNames.zip( fieldNames ) )
         {
             // Private backing field
-            code.put( "private const " );
+            code.put( "private " );
             code.put( pair[0] ); // type name
             code.put( " _" ); // field names are prefixed with an underscore
             code.put( pair[1] ); // field name;
@@ -132,6 +134,13 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
             mixin( "this._%s = values[%u];".format( _fieldNames[i], i ) );
     }
 
+    /// Deconstruction support for the let module.
+    void deconstruct( staticMap!( toPointer, Types ) ptrs ) const
+    {
+        foreach( i, _; Types )
+            *(ptrs[i]) = *this.pointerTo!( _fieldNames[i] );
+    }
+
     bool opEquals()( auto ref const Self other ) const nothrow @trusted
     {
         auto eq = true;
@@ -189,8 +198,10 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
     }
 }
 
-@safe unittest
+@system unittest
 {
+    import dext.let : let;
+
     alias Point = Record!(
         int, "x",
         int, "y"
@@ -206,14 +217,20 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
         Size, "size"
     );
 
-    const a = Point( 1, 2 );
-    const b = Point( 3, 4 );
+    auto a = Point( 1, 2 );
+    auto b = Point( 3, 4 );
+
+    int x, y;
+    let( x, y ) = a;
+
+    assert( x == 1 );
+    assert( y == 2 );
 
     assert( a != b && b != a );
     assert( a.toHash() != b.toHash() );
 
-    const c = Size( 50, 100 );
-    const d = Rectangle( a, c );
+    auto c = Size( 50, 100 );
+    auto d = Rectangle( a, c );
 
     assert( d.location == a );
     assert( d.size == c );
