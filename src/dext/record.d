@@ -3,15 +3,9 @@ module dext.record;
 private {
     import std.traits : isSomeString;
 
-    alias toPointer( T ) = T*;
-
-    // This catches types and is needed so Filter!( isIdentifier, T )
-    // works correctly
-    enum isIdentifier( T ) = false;
-
     template isIdentifier( T... ) if( T.length == 1 )
     {
-        static if( isType!( T[0] ) )
+        static if( is( T[0] ) )
             enum isIdentifier = false;
         else
             enum isIdentifier = stringIsIdentifier!( T[0] );
@@ -31,11 +25,6 @@ private {
                                    && S[1 .. $].all!( c => c == '_' || c.isAlphaNum );
     }
 
-    template isType( T... ) if( T.length == 1 )
-    {
-        enum isType = is( T[0] );
-    }
-
     template areTypeNamePairs( T... ) if( T.length % 2 == 0 )
     {
         static if( T.length == 2 )
@@ -45,35 +34,6 @@ private {
             enum areTypeNamePairs = is( T[0] ) &&
                                     isIdentifier!( T[1] ) &&
                                     areTypeNamePairs!( T[2 .. $] );
-    }
-
-    string generateFields( string[] fieldNames, string[] typeNames )()
-        if( fieldNames.length == typeNames.length )
-    {
-        import std.array  : appender;
-        import std.range  : zip;
-
-        auto code = appender!string;
-        foreach( pair; typeNames.zip( fieldNames ) )
-        {
-            // Private backing field
-            code.put( "private " );
-            code.put( pair[0] ); // type name
-            code.put( " _" ); // field names are prefixed with an underscore
-            code.put( pair[1] ); // field name;
-            code.put( ";" );
-
-            // Public getter-only property
-            code.put( pair[0] ); // type name
-            code.put( " " );
-            code.put( pair[1] ); // field name
-            code.put( "() const @property" );
-            code.put( "{ return this._" );
-            code.put( pair[1] ); // field name
-            code.put( "; }" );
-        }
-
-        return code.data;
     }
 }
 
@@ -113,15 +73,47 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
     import std.traits : fullyQualifiedName;
 
     private {
+        alias toPointer( T ) = T*;
+        template isType( T... ) if( T.length == 1 )
+        {
+            enum isType = is( T[0] );
+        }
+
         alias Self = typeof( this );
         alias Types = Filter!( isType, T );
 
-        static immutable _typeNames = [ staticMap!( fullyQualifiedName, Types ) ];
         static immutable _fieldNames = [ Filter!( isIdentifier, T ) ];
     }
 
     // private backing fields and getter-only properties
-    mixin( generateFields!( _fieldNames, _typeNames ) );
+    mixin( (){
+        import std.array  : appender;
+        import std.range  : zip;
+
+        static immutable typeNames = [ staticMap!( fullyQualifiedName, Types ) ];
+        auto code = appender!string;
+
+        foreach( pair; typeNames.zip( _fieldNames ) )
+        {
+            // Private backing field
+            code.put( "private " );
+            code.put( pair[0] ); // type name
+            code.put( " _" ); // field names are prefixed with an underscore
+            code.put( pair[1] ); // field name;
+            code.put( ";" );
+
+            // Public getter-only property
+            code.put( pair[0] ); // type name
+            code.put( " " );
+            code.put( pair[1] ); // field name
+            code.put( "() const @property" );
+            code.put( "{ return this._" );
+            code.put( pair[1] ); // field name
+            code.put( "; }" );
+        }
+
+        return code.data;
+    }() );
 
     /++
     Accepts parameters matching the types of the fields declared in the template arguments
