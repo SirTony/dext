@@ -6,3 +6,8 @@ Installation
 ============
 
 dext can be found in the [dub repository](http://code.dlang.org/packages/dext).
+
+Documentation
+=============
+
+API docs with examples can be found out https://sirtony.github.io/dext/
