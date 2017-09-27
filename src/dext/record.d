@@ -140,7 +140,7 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
     }
 
     /**
-    Deconstruction support for the <a href="/dext.let">let module</a>.
+    Deconstruction support for the <a href="/dext/dext/let">let module</a>.
 
     Authors: Tony J. Hudgins
     Copyright: Copyright © 2017, Tony J. Hudgins
