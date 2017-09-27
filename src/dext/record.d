@@ -103,8 +103,8 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
             code.put( ";" );
 
             // Public getter-only property
-            code.put( pair[0] ); // type name
-            code.put( " " );
+            //code.put( pair[0] ); // type name
+            code.put( "auto " );
             code.put( pair[1] ); // field name
             code.put( "() const @property" );
             code.put( "{ return this._" );
@@ -129,8 +129,15 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
     /// Deconstruction support for the let module.
     void deconstruct( staticMap!( toPointer, Types ) ptrs ) const
     {
-        foreach( i, _; Types )
-            *(ptrs[i]) = *this.pointerTo!( _fieldNames[i] );
+        import std.traits : isArray;
+
+        foreach( i, T; Types )
+        {
+            static if( isArray!T )
+                *(ptrs[i]) = (*this.pointerTo!( _fieldNames[i] ) ).dup;
+            else
+                *(ptrs[i]) = *this.pointerTo!( _fieldNames[i] );
+        }
     }
 
     bool opEquals()( auto ref const Self other ) const nothrow @trusted
@@ -208,6 +215,34 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
         Point, "location",
         Size, "size"
     );
+
+    alias Person = Record!(
+        string, "firstName",
+        string[], "middleNames",
+        string, "lastName",
+        ubyte, "age"
+    );
+
+    // test to ensure arrays work
+    auto richardPryor = Person(
+        "Richard",
+        [ "Franklin", "Lennox", "Thomas" ],
+        "Pryor",
+        65
+    );
+
+    string[] middleNames;
+    string _, n1, n2, n3;
+    ubyte __;
+
+    assert( richardPryor.middleNames == [ "Franklin", "Lennox", "Thomas" ] );
+
+    let( _, middleNames, _, __ ) = richardPryor;
+    let( n1, n2, n3 ) = middleNames;
+
+    assert( n1 == "Franklin" );
+    assert( n2 == "Lennox" );
+    assert( n3 == "Thomas" );
 
     auto a = Point( 1, 2 );
     auto b = Point( 3, 4 );
