@@ -1,0 +1,50 @@
+<!DOCTYPE html><html><head>
+<meta charset="UTF-8"/>
+<title>Function let</title>
+<link rel="stylesheet" type="text/css" href="../../styles/ddox.css"/>
+<link rel="stylesheet" href="../../prettify/prettify.css" type="text/css"/>
+<script type="text/javascript" src="../../scripts/jquery.js">/**/</script><script type="text/javascript" src="../../scripts/ddox.js">/**/</script></head><body onload="setupDdox();"><nav id="main-nav"><noscript><p style="color: red">The search functionality needs JavaScript enabled</p></noscript><div id="symbolSearchPane" style="display: none"><form action="#" method="GET">
+<input id="symbolSearch" type="text" name="q" placeholder="Search for symbols" autocomplete="off" onchange="performSymbolSearch(40);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/></form><ul id="symbolSearchResults" class="symbolList" style="display: none"></ul><script type="application/javascript" src="../../symbols.js"></script><script type="application/javascript">var symbolSearchRootDir = "../../";
+$('#symbolSearchPane').show();</script></div><ul class="tree-view"><li class="tree-view "><div class="package "><a href="../../dext.html">dext</a></div><ul class="tree-view"><li><div class="module selected"><a href="../../dext/let.html">let</a></div></li><li><div class="module "><a href="../../dext/record.html">record</a></div></li></ul></li></ul></nav><div id="main-contents"><h1>Function let</h1><p>Unpacks forward ranges, input ranges, static arrays,
+dynamic arrays, tuples, and user-defined types (via deconstructor methods)
+into the specified variables.
+</p><div class="prototype"><code class="lang-d"><div class="single-prototype">
+<span class="kwd">auto </span><span class="kwd">auto</span> <span class="pln">let</span>(Ts...)
+<span class="pun">(</span>
+<br/>
+&nbsp;&nbsp;<span class="kwd">ref </span><span class="typ">Ts</span> <span class="pln">locals</span>
+<br/>
+<span class="pun">)</span><span class="pun">;</span></div></code></div><section></section>
+
+<section><h2>Examples</h2>
+<pre class="code"><code class="lang-d"><span class="com">// unpack an array
+</span><span class="kwd">auto </span><span class="pln">nums </span><span class="pun">= [ </span><span class="lit">1</span><span class="pun">, </span><span class="lit">2</span><span class="pun">, </span><span class="lit">3 </span><span class="pun">];
+
+</span><span class="typ">int </span><span class="pln">a</span><span class="pun">, </span><span class="pln">b</span><span class="pun">, </span><span class="pln">c</span><span class="pun">;
+</span><span class="pln">let</span><span class="pun">( </span><span class="pln">a</span><span class="pun">, </span><span class="pln">b</span><span class="pun">, </span><span class="pln">c </span><span class="pun">) = </span><span class="pln">nums</span><span class="pun">; </span><span class="com">// access the array indices and assign them to the a, b, and c variables
+
+// unpack a struct with a built-in deconstructor
+</span><span class="kwd">struct </span><span class="typ">Point
+</span><span class="pun">{
+    </span><span class="kwd">immutable </span><span class="typ">int </span><span class="pln">x</span><span class="pun">;
+    </span><span class="kwd">immutable </span><span class="typ">int </span><span class="pln">y</span><span class="pun">;
+
+    </span><span class="typ">void </span><span class="pln">deconstruct</span><span class="pun">( </span><span class="typ">int</span><span class="pun">* </span><span class="pln">x</span><span class="pun">, </span><span class="typ">int</span><span class="pun">* </span><span class="pln">y </span><span class="pun">)
+    {
+        *</span><span class="pln">x </span><span class="pun">= </span><span class="kwd">this<wbr/></span><span class="pun">.</span><span class="pln">x</span><span class="pun">;
+        *</span><span class="pln">y </span><span class="pun">= </span><span class="kwd">this<wbr/></span><span class="pun">.</span><span class="pln">y</span><span class="pun">;
+    }
+}
+
+</span><span class="kwd">auto </span><span class="pln">pt </span><span class="pun">= </span><span class="typ">Point</span><span class="pun">( </span><span class="lit">5</span><span class="pun">, </span><span class="lit">6 </span><span class="pun">);
+</span><span class="typ">int </span><span class="pln">x</span><span class="pun">, </span><span class="pln">y</span><span class="pun">;
+</span><span class="pln">let</span><span class="pun">( </span><span class="pln">x</span><span class="pun">, </span><span class="pln">y </span><span class="pun">) = </span><span class="pln">pt</span><span class="pun">; </span><span class="com">// call Point.deconstruct() with pointers to the x and y variables</span></code></pre>
+</section>
+
+<footer><table class="license-info"><tr><th>Authors</th><td><p>Tony J. Hudgins
+</p>
+</td></tr><tr><th>Copyright</th><td><p>Copyright © 2017, Tony J. Hudgins
+</p>
+</td></tr><tr><th>License</th><td><p>MIT
+</p>
+</td></tr></table><p class="faint">Generated using the DDOX documentation generator</p></footer></div></body></html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url><loc>http://127.0.0.1/index.html</loc></url>
+<url><loc>http://127.0.0.1/dext/let.html</loc></url>
+<url><loc>http://127.0.0.1/dext/let/let.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.deconstruct.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.isType.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.opEquals.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.pointerTo.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.Self.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.this.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.toHash.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.toPointer.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.toString.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record.Types.html</loc></url>
+<url><loc>http://127.0.0.1/dext/record/Record._fieldNames.html</loc></url>
+<url><loc>http://127.0.0.1/dext.html</loc></url>
+</urlset>
