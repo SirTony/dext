@@ -18,7 +18,7 @@
 .dub
 docs.json
 __dummy.html
-#docs/
+docs/
 docs/package.html
 
 # Code coverage

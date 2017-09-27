@@ -1,3 +1,10 @@
+/**
+Provides functionality for easily creating immutable record types.
+
+Authors: Tony J. Hudgins
+Copyright: Copyright © 2017, Tony J. Hudgins
+License: MIT
+*/
 module dext.record;
 
 private {
@@ -44,6 +51,8 @@ The purpose of this struct is act similarly to record types in functional
 programming languages like OCaml and Haskell.
 
 Authors: Tony J. Hudgins
+Copyright: Copyright © 2017, Tony J. Hudgins
+License: MIT
 
 Examples:
 ---------
@@ -118,6 +127,10 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
     /++
     Accepts parameters matching the types of the fields declared in the template arguments
     and automatically assigns values to the backing fields.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2017, Tony J. Hudgins
+    License: MIT
     +/
     this( Types values )
     {
@@ -126,7 +139,13 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
             mixin( "this._%s = values[%u];".format( _fieldNames[i], i ) );
     }
 
-    /// Deconstruction support for the let module.
+    /**
+    Deconstruction support for the <a href="/dext.let">let module</a>.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2017, Tony J. Hudgins
+    License: MIT
+    */
     void deconstruct( staticMap!( toPointer, Types ) ptrs ) const
     {
         import std.traits : isArray;
@@ -140,6 +159,14 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
         }
     }
 
+    /**
+    Implements equality comparison with other records of the same type.
+    Two records are only considered equal if all fields are equal.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2017, Tony J. Hudgins
+    License: MIT
+    */
     bool opEquals()( auto ref const Self other ) const nothrow @trusted
     {
         auto eq = true;
@@ -154,19 +181,41 @@ struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
         return eq;
     }
 
+    /**
+    Computes the hashcode of this record based on the hashes of the fields,
+    as well as the field names to avoid collisions with other records with
+    the same number and type of fields.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2017, Tony J. Hudgins
+    License: MIT
+    */
     size_t toHash() const nothrow @trusted
     {
         size_t hash = 486_187_739;
+
         foreach( i, T; Types )
         {
             auto ptr = this.pointerTo!( _fieldNames[i] );
+            auto nameHash =
+                typeid( typeof( _fieldNames[i] ) )
+                .getHash( cast(const(void)*)&_fieldNames[i] );
+
             auto fieldHash = typeid( T ).getHash( cast(const(void)*)ptr );
-            hash = ( hash * 15_485_863 ) ^ fieldHash;
+
+            hash = ( hash * 15_485_863 ) ^ nameHash ^ fieldHash;
         }
 
         return hash;
     }
 
+    /**
+    Stringifies and formats all fields.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2017, Tony J. Hudgins
+    License: MIT
+    */
     string toString() const
     {
         import std.array : appender;

@@ -9,5 +9,10 @@
     "targetType": "library",
     "targetName": "dext",
     "targetPath": "bin",
-    "sourcePath": "src"
+    "sourcePath": "src",
+
+    "-ddoxFilterArgs": [
+        "--in", "dext.",
+        "--min-protection", "Public"
+    ]
 }

@@ -1,3 +1,11 @@
+/**
+Provides functionality for unpacking values from collections into local variables,
+similar to C++'s `std::tie`.
+
+Authors: Tony J. Hudgins
+Copyright: Copyright © 2017, Tony J. Hudgins
+License: MIT
+*/
 module dext.let;
 
 /++
@@ -6,6 +14,8 @@ dynamic arrays, tuples, and user-defined types (via deconstructor methods)
 into the specified variables.
 
 Authors: Tony J. Hudgins
+Copyright: Copyright © 2017, Tony J. Hudgins
+License: MIT
 
 Examples:
 ---------
@@ -33,7 +43,7 @@ int x, y;
 let( x, y ) = pt; // call Point.deconstruct() with pointers to the x and y variables
 ---------
 +/
-auto let( Ts... )( ref Ts params )
+auto let( Ts... )( ref Ts locals )
 {
     import core.exception : RangeError;
     import std.meta : allSatisfy, staticMap;
@@ -43,42 +53,42 @@ auto let( Ts... )( ref Ts params )
                         isFunctionPointer, isPointer, isStaticArray, Parameters,
                         ReturnType, Unqual;
     import std.typecons : Tuple;
-    
+
     alias toPointer( T ) = T*;
     alias TPointers = staticMap!( toPointer, Ts );
     alias TCommon = CommonType!Ts;
 
     enum hasDeconstructorMethod( T ) = is( typeof( {
         static assert( __traits( hasMember, T, "deconstruct" ) );
-        
+
         enum method = &__traits( getMember, T, "deconstruct" );
         static assert( isCallable!method );
         static assert( is( ReturnType!method == void ) );
-        
-        alias params = Parameters!method;
-        static assert( params.length == Ts.length );
-        static assert( allSatisfy!( isPointer, params ) );
-        static assert( is( params == TPointers ) );
+
+        alias locals = Parameters!method;
+        static assert( locals.length == Ts.length );
+        static assert( allSatisfy!( isPointer, locals ) );
+        static assert( is( locals == TPointers ) );
     } ) );
-    
+
     static struct LetAssigner
     {
         private {
             TPointers pointers;
         }
-        
-        this( Ts... )( ref Ts params )
+
+        this( Ts... )( ref Ts locals )
         {
-            foreach( i, ref x; params )
+            foreach( i, ref x; locals )
                 this.pointers[i] = &x;
         }
-        
+
         void opAssign( Tuple!Ts tup )
         {
             foreach( i, _; Ts )
                 *this.pointers[i] = tup[i];
         }
-        
+
         static if( !is( TCommon == void ) )
         {
             void opAssign( TCommon[] arr )
@@ -87,12 +97,12 @@ auto let( Ts... )( ref Ts params )
                     throw new RangeError(
                         "Array has too few items to unpack (expecting at least %u)".format( Ts.length )
                     );
-                
+
                 foreach( i, t; Ts )
                     *this.pointers[i] = cast(t)arr[i];
             }
         }
-        
+
         void opAssign( R )( R r )
             if( !isArray!R && isInputRange!R &&
                 !isForwardRange!R && !is( TCommon == void ) &&
@@ -101,7 +111,7 @@ auto let( Ts... )( ref Ts params )
         {
             this.rangeImpl( r );
         }
-        
+
         void opAssign( R )( R r )
             if( !isArray!R && isForwardRange!R &&
                 !is( TCommon == void ) && is( ElementType!R : TCommon )
@@ -109,7 +119,7 @@ auto let( Ts... )( ref Ts params )
         {
             this.rangeImpl( r.save() );
         }
-        
+
         private void rangeImpl( R )( R r )
         {
             foreach( i, t; Ts )
@@ -118,19 +128,19 @@ auto let( Ts... )( ref Ts params )
                     throw new RangeError(
                         "Range has too few items to unpack (expecting at least %u)".format( Ts.length )
                     );
-                
+
                 *this.pointers[i] = cast(t)r.front;
                 r.popFront();
             }
         }
-        
+
         void opAssign( T )( T value ) if( hasDeconstructorMethod!T )
         {
             value.deconstruct( this.pointers );
         }
     }
-    
-    return LetAssigner( params );
+
+    return LetAssigner( locals );
 }
 
 @system unittest
