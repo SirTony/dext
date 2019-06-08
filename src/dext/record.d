@@ -7,48 +7,23 @@ License: MIT
 */
 module dext.record;
 
-private {
-    import std.traits : isSomeString;
+import std.traits : FieldTypeTuple, FieldNameTuple, staticMap;
+import std.format : format;
 
-    template isIdentifier( T... ) if( T.length == 1 )
-    {
-        static if( is( T[0] ) )
-            enum isIdentifier = false;
-        else
-            enum isIdentifier = stringIsIdentifier!( T[0] );
-    }
-
-    template stringIsIdentifier( alias S ) if( isSomeString!( typeof( S ) ) )
-    {
-        import std.algorithm.searching : all;
-        import std.uni : isAlpha, isAlphaNum;
-
-        static if( S.length == 0 )
-            enum stringIsIdentifier = false;
-        static if( S.length == 1 )
-            enum stringIsIdentifier = S[0] == '_' || S[0].isAlpha;
-        else
-            enum stringIsIdentifier = ( S[0] == '_' || S[0].isAlpha )
-                                   && S[1 .. $].all!( c => c == '_' || c.isAlphaNum );
-    }
-
-    template areTypeNamePairs( T... ) if( T.length % 2 == 0 )
-    {
-        static if( T.length == 2 )
-            enum areTypeNamePairs = is( T[0] ) &&
-                                    isIdentifier!( T[1] );
-        else
-            enum areTypeNamePairs = is( T[0] ) &&
-                                    isIdentifier!( T[1] ) &&
-                                    areTypeNamePairs!( T[2 .. $] );
-    }
-}
+private alias asPointer( T ) = T*;
 
 /++
-Immutable value type that automatically implements equality (==, !=),
-hashcode computation (toHash), and stringification (toString).
+A mixin template for turning a struct into an immutable value type
+that automatically implements equality (==, !=), hashcode computation (toHash),
+stringification (toString), and mutation methods that create new copies with new values.
+
 The purpose of this struct is act similarly to record types in functional
 programming languages like OCaml and Haskell.
+
+Accepts an optional, boolean template parameter. When true, the mixin will generate
+a deconstruction method for use with <a href="/dext/dext/let">let</a>. Default is false.
+
+All fields on the struct must start with an underscore and be non-public. Both are enforced with static asserts.
 
 Authors: Tony J. Hudgins
 Copyright: Copyright © 2017, Tony J. Hudgins
@@ -57,13 +32,14 @@ License: MIT
 Examples:
 ---------
 // define a point int 2D space
-alias Point = Record!(
-    int, "x",
-    int, "y"
-);
+struct Point
+{
+    mixin Record!true;
+    private int _x, _y;
+}
 
 auto a = Point( 3, 7 );
-auto b = Point( 9, 6 );
+auto b = a.withX( 10 ); // creates a new copy of 'a' with a new 'x' value of 10 and the same 'y' value such that b == Point( 10, 7 )
 
 // Euclidean distance
 auto distance( in Point a, in Point b )
@@ -73,204 +49,194 @@ auto distance( in Point a, in Point b )
     return sqrt( ( a.x - b.x ) ^^ 2f + ( a.y - b.y ) ^^ 2f );
 }
 
-auto dist = distance( a, b ); // 6.08276
+auto dist = distance( a, b );
 ---------
 +/
-struct Record( T... ) if( T.length % 2 == 0 && areTypeNamePairs!T )
+mixin template Record( bool includeDestructuring = false )
 {
-    import std.meta : Filter, staticMap;
-    import std.traits : fullyQualifiedName;
+    static assert(
+        is( typeof( this ) ) && is( typeof( this ) == struct ),
+        "Record mixin template may only be used from within a struct"
+    );
 
-    private {
-        alias toPointer( T ) = T*;
-        template isType( T... ) if( T.length == 1 )
-        {
-            enum isType = is( T[0] );
-        }
-
-        alias Self = typeof( this );
-        alias Types = Filter!( isType, T );
-
-        static immutable _fieldNames = [ Filter!( isIdentifier, T ) ];
-    }
-
-    // private backing fields and getter-only properties
-    mixin( (){
-        import std.array  : appender;
-        import std.range  : zip;
-
-        static immutable typeNames = [ staticMap!( fullyQualifiedName, Types ) ];
-        auto code = appender!string;
-
-        foreach( pair; typeNames.zip( _fieldNames ) )
-        {
-            // Private backing field
-            code.put( "private " );
-            code.put( pair[0] ); // type name
-            code.put( " _" ); // field names are prefixed with an underscore
-            code.put( pair[1] ); // field name;
-            code.put( ";" );
-
-            // Public getter-only property
-            //code.put( pair[0] ); // type name
-            code.put( "auto " );
-            code.put( pair[1] ); // field name
-            code.put( "() const @property" );
-            code.put( "{ return this._" );
-            code.put( pair[1] ); // field name
-            code.put( "; }" );
-        }
-
-        return code.data;
-    }() );
-
-    /++
-    Accepts parameters matching the types of the fields declared in the template arguments
-    and automatically assigns values to the backing fields.
-
-    Authors: Tony J. Hudgins
-    Copyright: Copyright © 2017, Tony J. Hudgins
-    License: MIT
-    +/
-    this( Types values )
+    invariant
     {
-        import std.string : format;
-        foreach( i, _; Types )
-            mixin( "this._%s = values[%u];".format( _fieldNames[i], i ) );
-    }
-
-    /**
-    Deconstruction support for the <a href="/dext/dext/let">let module</a>.
-
-    Authors: Tony J. Hudgins
-    Copyright: Copyright © 2017, Tony J. Hudgins
-    License: MIT
-    */
-    void deconstruct( staticMap!( toPointer, Types ) ptrs ) const
-    {
-        import std.traits : isArray;
-
-        foreach( i, T; Types )
+        static foreach( name; FieldNameTuple!( typeof( this ) ) )
         {
-            static if( isArray!T )
-                *(ptrs[i]) = (*this.pointerTo!( _fieldNames[i] ) ).dup;
-            else
-                *(ptrs[i]) = *this.pointerTo!( _fieldNames[i] );
+            static assert(
+                name[0] == '_',
+                "field '%s' must start with an underscore".format( name )
+            );
+
+            static assert(
+                name.length >= 2,
+                "field '%s' must have at least one other character after the underscore".format( name )
+            );
+
+            static assert(
+                __traits( getProtection, __traits( getMember, this, name ) ) != "public",
+                "field '%s' cannot be public".format( name )
+            );
         }
     }
 
-    /**
-    Implements equality comparison with other records of the same type.
-    Two records are only considered equal if all fields are equal.
+    this( FieldTypeTuple!( typeof( this ) ) args ) nothrow @trusted
+    {
+        static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
+            __traits( getMember, this, name ) = args[i];
+    }
 
-    Authors: Tony J. Hudgins
-    Copyright: Copyright © 2017, Tony J. Hudgins
-    License: MIT
-    */
-    bool opEquals()( auto ref const Self other ) const nothrow @trusted
+    // generate getters and mutation methods
+    static foreach( name; FieldNameTuple!( typeof( this ) ) )
+    {
+        // read-only getter method
+        mixin( "auto %s() const pure nothrow @property { return this.%s; }".format( name[1 .. $], name ) );
+
+        // mutation method
+        mixin( {
+            import std.array  : appender, join;
+            import std.uni    : toUpper;
+            //import std.string : toUpper;
+
+            enum trimmed = name[1 .. $];
+            enum upperName = name.length == 1 ? trimmed.toUpper() : "%s%s".format( trimmed[0].toUpper(), trimmed[1 .. $] );
+
+            auto code = appender!string;
+            code.put( "typeof( this ) with%01$s( typeof( this.%02$s ) new%01$s ) nothrow @trusted {".format( upperName, name ) );
+
+            string[] args;
+            foreach( other; FieldNameTuple!( typeof( this ) ) )
+                args ~= name == other ? "new%s".format( upperName ) : "this.%s".format( other );
+
+            code.put( "return typeof( this )( %s ); }".format( args.join( ", " ) ) );
+
+            return code.data;
+        }() );
+    }
+
+    static if( includeDestructuring )
+    {
+        void deconstruct( staticMap!( asPointer, FieldTypeTuple!( typeof( this ) ) ) ptrs ) nothrow @trusted
+        {
+            static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
+                *ptrs[i] = __traits( getMember, this, name );
+        }
+    }
+
+    bool opEquals()( auto ref const typeof( this ) other ) const nothrow @trusted
     {
         auto eq = true;
-        foreach( i, _; Types )
-        {
-            auto thisPtr = this.pointerTo!( _fieldNames[i] );
-            auto otherPtr = other.pointerTo!( _fieldNames[i] );
 
-            eq = eq && *thisPtr == *otherPtr;
-        }
+        static foreach( name; FieldNameTuple!( typeof( this ) ) )
+            eq = eq && ( __traits( getMember, this, name ) == __traits( getMember, other, name ) );
 
         return eq;
     }
 
-    /**
-    Computes the hashcode of this record based on the hashes of the fields,
-    as well as the field names to avoid collisions with other records with
-    the same number and type of fields.
+    string toString() const
+    {
+        import std.traits : Unqual, isSomeString, isSomeChar;
+        import std.array  : appender, join, replace;
+        import std.conv   : to;
 
-    Authors: Tony J. Hudgins
-    Copyright: Copyright © 2017, Tony J. Hudgins
-    License: MIT
-    */
+        auto str = appender!string;
+        str.put( Unqual!( typeof( this ) ).stringof );
+        str.put( "(" );
+
+        string[] values;
+
+        foreach( name; FieldNameTuple!( typeof( this ) ) )
+        {
+            alias T = typeof( __traits( getMember, this, name ) );
+            const value = __traits( getMember, this, name );
+
+            static if( isSomeString!T )
+                values ~= `"%s"`.format( value.replace( "\"", "\\\"" ) );
+            else static if( isSomeChar!T )
+                values ~= value == '\'' || value == '\\' ? "'\\%s'".format( value ) : "'%s'".format( value );
+            else
+                values ~= "%s".format( value );
+        }
+
+        str.put( values.join( ", " ) );
+        str.put( ")" );
+
+        return str.data;
+    }
+
     size_t toHash() const nothrow @trusted
     {
         size_t hash = 486_187_739;
 
-        foreach( i, T; Types )
+        foreach( name; FieldNameTuple!( typeof( this ) ) )
         {
-            auto ptr = this.pointerTo!( _fieldNames[i] );
-            auto nameHash =
-                typeid( typeof( _fieldNames[i] ) )
-                .getHash( cast(const(void)*)&_fieldNames[i] );
+            const value = __traits( getMember, this, name );
 
-            auto fieldHash = typeid( T ).getHash( cast(const(void)*)ptr );
+            // create a local variable so we can take the address
+            const nameTemp = name;
 
-            hash = ( hash * 15_485_863 ) ^ nameHash ^ fieldHash;
+            // hash the field name to try and avoid collisions with
+            // records that have the same number and types of fields
+            const nameHash = typeid( string ).getHash( &nameTemp );
+            const valueHash = typeid( typeof( value ) ).getHash( &value );
+
+            hash = ( hash * 15_485_863 ) ^ nameHash ^ valueHash;
         }
 
         return hash;
-    }
-
-    /**
-    Stringifies and formats all fields.
-
-    Authors: Tony J. Hudgins
-    Copyright: Copyright © 2017, Tony J. Hudgins
-    License: MIT
-    */
-    string toString() const
-    {
-        import std.array : appender;
-        import std.conv  : to;
-
-        auto str = appender!string;
-        str.put( "{ " );
-
-        enum len = Types.length;
-        foreach( i, _; Types )
-        {
-            auto ptr = this.pointerTo!( _fieldNames[i] );
-            str.put( _fieldNames[i] );
-            str.put( " = " );
-            str.put( (*ptr).to!string );
-
-            if( i < len - 1 )
-                str.put( ", " );
-        }
-
-        str.put( " }" );
-        return str.data;
-    }
-
-    private auto pointerTo( string name )() const nothrow @trusted
-    {
-        mixin( "return &this._" ~ name ~ ";" );
     }
 }
 
 @system unittest
 {
+    import std.typecons : Tuple, tuple;
     import dext.let : let;
 
-    alias Point = Record!(
-        int, "x",
-        int, "y"
-    );
+    struct Point
+    {
+        mixin Record!true;
+        private int _x, _y;
+    }
 
-    alias Size = Record!(
-        int, "width",
-        int, "height"
-    );
+    struct Size
+    {
+        mixin Record;
+        private int _width, _height;
+    }
 
-    alias Rectangle = Record!(
-        Point, "location",
-        Size, "size"
-    );
+    struct Rectangle
+    {
+        mixin Record;
+        private Point _location;
+        private Size _size;
+    }
 
-    alias Person = Record!(
-        string, "firstName",
-        string[], "middleNames",
-        string, "lastName",
-        ubyte, "age"
-    );
+    struct Person
+    {
+        mixin Record!true;
+
+        private {
+            string _firstName;
+            string[] _middleNames;
+            string _lastName;
+            ubyte _age;
+        }
+    }
+
+    // to ensure non-primitive types defined in other modules/packages work properly
+    struct External
+    {
+        mixin Record;
+        private Tuple!( int, int ) _tup;
+    }
+
+    auto ext = External( tuple( 50, 100 ) );
+
+    int e1, e2;
+    let( e1, e2 ) = ext.tup;
+
+    assert( e1 == 50 );
+    assert( e2 == 100 );
 
     // test to ensure arrays work
     auto richardPryor = Person(
