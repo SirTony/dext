@@ -7,11 +7,6 @@ License: MIT
 */
 module dext.record;
 
-import std.traits : FieldTypeTuple, FieldNameTuple, staticMap;
-import std.format : format;
-
-private alias asPointer( T ) = T*;
-
 /++
 A mixin template for turning a struct into an immutable value type
 that automatically implements equality (==, !=), hashcode computation (toHash),
@@ -54,6 +49,9 @@ auto dist = distance( a, b );
 +/
 mixin template Record( bool includeDestructuring = false )
 {
+    import std.traits : FieldTypeTuple, FieldNameTuple, staticMap;
+    import std.format : format;
+
     static assert(
         is( typeof( this ) ) && is( typeof( this ) == struct ),
         "Record mixin template may only be used from within a struct"
@@ -80,7 +78,7 @@ mixin template Record( bool includeDestructuring = false )
         }
     }
 
-    this( FieldTypeTuple!( typeof( this ) ) args ) nothrow @trusted
+    this( FieldTypeTuple!( typeof( this ) ) args ) @trusted
     {
         static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
             __traits( getMember, this, name ) = args[i];
@@ -102,7 +100,7 @@ mixin template Record( bool includeDestructuring = false )
             enum upperName = name.length == 1 ? trimmed.toUpper() : "%s%s".format( trimmed[0].toUpper(), trimmed[1 .. $] );
 
             auto code = appender!string;
-            code.put( "typeof( this ) with%01$s( typeof( this.%02$s ) new%01$s ) nothrow @trusted {".format( upperName, name ) );
+            code.put( "typeof( this ) with%01$s( typeof( this.%02$s ) new%01$s ) @trusted {".format( upperName, name ) );
 
             string[] args;
             foreach( other; FieldNameTuple!( typeof( this ) ) )
@@ -116,7 +114,8 @@ mixin template Record( bool includeDestructuring = false )
 
     static if( includeDestructuring )
     {
-        void deconstruct( staticMap!( asPointer, FieldTypeTuple!( typeof( this ) ) ) ptrs ) nothrow @trusted
+        private alias __asPointer( T ) = T*;
+        void deconstruct( staticMap!( __asPointer, FieldTypeTuple!( typeof( this ) ) ) ptrs ) nothrow @trusted
         {
             static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
                 *ptrs[i] = __traits( getMember, this, name );
@@ -166,21 +165,24 @@ mixin template Record( bool includeDestructuring = false )
 
     size_t toHash() const nothrow @trusted
     {
+        import std.traits : fullyQualifiedName;
+
         size_t hash = 486_187_739;
 
         foreach( name; FieldNameTuple!( typeof( this ) ) )
         {
+            const typeName = fullyQualifiedName!( typeof( this ) );
             const value = __traits( getMember, this, name );
 
             // create a local variable so we can take the address
             const nameTemp = name;
 
-            // hash the field name to try and avoid collisions with
-            // records that have the same number and types of fields
-            const nameHash = typeid( string ).getHash( &nameTemp );
+            // hash the names to try and avoid collisions with identical structs.
+            const typeHash  = typeid( string ).getHash( &typeName );
+            const nameHash  = typeid( string ).getHash( &nameTemp );
             const valueHash = typeid( typeof( value ) ).getHash( &value );
 
-            hash = ( hash * 15_485_863 ) ^ nameHash ^ valueHash;
+            hash = ( hash * 15_485_863 ) ^ typeHash ^ nameHash ^ valueHash;
         }
 
         return hash;

@@ -1,18 +1,22 @@
 {
-	"name": "dext",
+	"-ddoxFilterArgs": [
+		"--in",
+		"dext.",
+		"--min-protection",
+		"Public"
+	],
+	"authors": [
+		"Tony J. Hudgins"
+	],
+	"copyright": "Copyright © 2019, Tony J. Hudgins",
 	"description": "A collection of extensions and utilities for the D programming language.",
-	"copyright": "Copyright © 2017, Tony J. Hudgins",
-    "license": "MIT",
-	"authors": [ "Tony J. Hudgins" ],
-    "homepage": "https://github.com/SirTony/dext",
-
-    "targetType": "library",
-    "targetName": "dext",
-    "targetPath": "bin",
-    "sourcePath": "src",
-
-    "-ddoxFilterArgs": [
-        "--in", "dext.",
-        "--min-protection", "Public"
-    ]
+	"homepage": "https://github.com/SirTony/dext",
+	"license": "MIT",
+	"name": "dext",
+	"sourcePaths": [
+		"src"
+	],
+	"targetName": "dext",
+	"targetPath": "bin",
+	"targetType": "library"
 }
