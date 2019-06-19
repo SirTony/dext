@@ -53,8 +53,8 @@ mixin template Record( bool includeDestructuring = false )
     import std.format : format;
 
     static assert(
-        is( typeof( this ) ) && is( typeof( this ) == struct ),
-        "Record mixin template may only be used from within a struct"
+        is( typeof( this ) ) && ( is( typeof( this ) == class ) || is( typeof( this ) == struct ) ),
+        "Record mixin template may only be used from within a struct or class"
     );
 
     invariant
@@ -106,7 +106,10 @@ mixin template Record( bool includeDestructuring = false )
             foreach( other; FieldNameTuple!( typeof( this ) ) )
                 args ~= name == other ? "new%s".format( upperName ) : "this.%s".format( other );
 
-            code.put( "return typeof( this )( %s ); }".format( args.join( ", " ) ) );
+            static if( is( typeof( this ) == class ) )
+                code.put( "return new typeof( this )( %s ); }".format( args.join( ", " ) ) );
+            else
+                code.put( "return typeof( this )( %s ); }".format( args.join( ", " ) ) );
 
             return code.data;
         }() );
@@ -132,7 +135,17 @@ mixin template Record( bool includeDestructuring = false )
         return eq;
     }
 
-    string toString() const
+    static if( is( typeof( this ) == class ) )
+        override string toString() const { return this.toStringImpl(); }
+    else
+        string toString() const { return this.toStringImpl(); }
+
+    static if( is( typeof( this ) == class ) )
+        override size_t toHash() const nothrow @trusted { return this.toHashImpl(); }
+    else
+        size_t toHash() const nothrow @trusted { return this.toHashImpl(); }
+
+    private string toStringImpl() const
     {
         import std.traits : Unqual, isSomeString, isSomeChar;
         import std.array  : appender, join, replace;
@@ -163,7 +176,7 @@ mixin template Record( bool includeDestructuring = false )
         return str.data;
     }
 
-    size_t toHash() const nothrow @trusted
+    private size_t toHashImpl() const nothrow @trusted
     {
         import std.traits : fullyQualifiedName;
 
@@ -193,6 +206,15 @@ mixin template Record( bool includeDestructuring = false )
 {
     import std.typecons : Tuple, tuple;
     import dext.let : let;
+
+    final class RecordClass
+    {
+        mixin Record;
+        private int _x;
+    }
+
+    auto klass = new RecordClass( 5 );
+    assert( klass.x == 5 );
 
     struct Point
     {
