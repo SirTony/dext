@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Module dext.args</title>
+		<link rel="stylesheet" type="text/css" href="../styles/ddox.css"/>
+		<link rel="stylesheet" href="../prettify/prettify.css" type="text/css"/>
+		<script type="text/javascript" src="../scripts/jquery.js">/**/</script><script type="text/javascript" src="../scripts/ddox.js">/**/</script>
+	</head>
+	<body onload="setupDdox();">
+		<nav id="main-nav">
+			<noscript>
+				<p style="color: red">The search functionality needs JavaScript enabled</p>
+			</noscript>
+			<div id="symbolSearchPane" style="display: none">
+				<form action="#" method="GET">
+					<input id="symbolSearch" type="text" name="q" placeholder="Search for symbols" autocomplete="off" onchange="performSymbolSearch(40);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/>
+				</form>
+				<ul id="symbolSearchResults" class="symbolList" style="display: none"></ul><script type="application/javascript" src="../symbols.js"></script><script type="application/javascript">var symbolSearchRootDir = "../";
+$('#symbolSearchPane').show();</script>
+			</div>
+			<ul class="tree-view">
+				<li class="tree-view ">
+					<div class="package ">
+						<a href="../dext.html">dext</a>
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module selected">
+						<a href="../dext/args.html">args</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../dext/let.html">let</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../dext/record.html">record</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../dext/typecons.html">typecons</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
+		</nav>
+		<div id="main-contents">
+			<h1>Module dext.args</h1><p>Provides some convenience functionality for parsing command-line arguments
+by piggy-backing off std.getopt.
+</p><section></section>
+
+			<section></section>
+			<section>
+				<h2>Functions</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="parseArgs" class="public" href="../dext/args/parseArgs.html">parseArgs</a><span class="decoration">(args, formatter)</span>
+							</code>
+						</td>
+						<td>Use std.getopt.getopt to parse command-line arguments into a class or struct.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="parseArgs" class="public" href="../dext/args/parseArgs.html">parseArgs</a><span class="decoration">(args, instance, formatter)</span>
+							</code>
+						</td>
+						<td>Use std.getopt.getopt to parse command-line arguments into a class or struct.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Structs</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="AllowBundling" class="public" href="../dext/args/AllowBundling.html">AllowBundling</a>
+							</code>
+						</td>
+						<td>Allow short options to be bundled e.g. '-xvf'. Incompatible with [NoBundling].
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Banner" class="public" href="../dext/args/Banner.html">Banner</a>
+							</code>
+						</td>
+						<td>A banner that will be printed to the usage screen before the options.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="CaseInsensitive" class="public" href="../dext/args/CaseInsensitive.html">CaseInsensitive</a>
+							</code>
+						</td>
+						<td>Indicates that argument parsing is case-insensitive. Incompatible with [CaseSensitive].
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="CaseSensitive" class="public" href="../dext/args/CaseSensitive.html">CaseSensitive</a>
+							</code>
+						</td>
+						<td>Indicates that that argument parsing is case-sensitive. Incompatible with [CaseInsensitive].
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Help" class="public" href="../dext/args/Help.html">Help</a>
+							</code>
+						</td>
+						<td>Help string for an option that will be displayed on the usage screen.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="KeepEndOfOptions" class="public" href="../dext/args/KeepEndOfOptions.html">KeepEndOfOptions</a>
+							</code>
+						</td>
+						<td>Keep the end-of-options marker string.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="MyOptions" class="public" href="../dext/args/MyOptions.html">MyOptions</a>
+							</code>
+						</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="NoBundling" class="public" href="../dext/args/NoBundling.html">NoBundling</a>
+							</code>
+						</td>
+						<td>Disallow short options to be bundled. Incompatible with [AllowBundling].
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="NoPassThrough" class="public" href="../dext/args/NoPassThrough.html">NoPassThrough</a>
+							</code>
+						</td>
+						<td>Don't pass unrecognized options through silently. Incompatible with [PassThrough].
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="PassThrough" class="public" href="../dext/args/PassThrough.html">PassThrough</a>
+							</code>
+						</td>
+						<td>Pass unrecognized options through silently. Incompatible with [NoPassThrough].
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Required" class="public" href="../dext/args/Required.html">Required</a>
+							</code>
+						</td>
+						<td>Indicates that an option is required.
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="ShortName" class="public" href="../dext/args/ShortName.html">ShortName</a>
+							</code>
+						</td>
+						<td>A single printable character representing a short flag for a command line argument.
+e.x. '-v'
+</td>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="StopOnFirstNonOption" class="public" href="../dext/args/StopOnFirstNonOption.html">StopOnFirstNonOption</a>
+							</code>
+						</td>
+						<td>Stops processing on the first string that doesn't look like an option.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Enums</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<code>
+								<a id="Color" class="public" href="../dext/args/Color.html">Color</a>
+							</code>
+						</td>
+						<td></td>
+					</tr>
+				</table>
+			</section>
+			<section>
+				<h2>Aliases</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a id="OptionFormatter" class="public" href="../dext/args/OptionFormatter.html">
+								<code>OptionFormatter</code>
+							</a>
+						</td>
+						<td>
+							<code class="prettyprint lang-d"><span class="typ">string</span> <span class="kwd">delegate</span><span class="pun">(</span><span class="typ">string</span><span class="pun">, </span><span class="pln">std<wbr/></span><span class="pun">.</span><span class="pln">getopt<wbr/></span><span class="pun">.</span><span class="typ">Option</span><span class="pun">[]</span><span class="pun">)</span></code>
+						</td>
+						<td></td>
+					</tr>
+				</table>
+			</section>
+			<footer>
+				<table class="license-info">
+					<tr>
+						<th>Authors</th>
+						<td>
+							<p>Tony J. Hudgins
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>Copyright</th>
+						<td>
+							<p>Copyright © 2019, Tony J. Hudgins
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>License</th>
+						<td>
+							<p>MIT
+</p>
+
+						</td>
+					</tr>
+				</table>
+				<p class="faint">Generated using the DDOX documentation generator</p>
+			</footer>
+		</div>
+	</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>Struct Params</title>
+		<link rel="stylesheet" type="text/css" href="../../styles/ddox.css"/>
+		<link rel="stylesheet" href="../../prettify/prettify.css" type="text/css"/>
+		<script type="text/javascript" src="../../scripts/jquery.js">/**/</script><script type="text/javascript" src="../../scripts/ddox.js">/**/</script>
+	</head>
+	<body onload="setupDdox();">
+		<nav id="main-nav">
+			<noscript>
+				<p style="color: red">The search functionality needs JavaScript enabled</p>
+			</noscript>
+			<div id="symbolSearchPane" style="display: none">
+				<form action="#" method="GET">
+					<input id="symbolSearch" type="text" name="q" placeholder="Search for symbols" autocomplete="off" onchange="performSymbolSearch(40);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/>
+				</form>
+				<ul id="symbolSearchResults" class="symbolList" style="display: none"></ul><script type="application/javascript" src="../../symbols.js"></script><script type="application/javascript">var symbolSearchRootDir = "../../";
+$('#symbolSearchPane').show();</script>
+			</div>
+			<ul class="tree-view">
+				<li class="tree-view ">
+					<div class="package ">
+						<a href="../../dext.html">dext</a>
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module ">
+						<a href="../../dext/args.html">args</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../../dext/let.html">let</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../../dext/record.html">record</a>
+					</div>
+				</li>
+				<li>
+					<div class="module selected">
+						<a href="../../dext/typecons.html">typecons</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
+		</nav>
+		<div id="main-contents">
+			<h1>Struct Params</h1><p>Represents a set of flags built from an enum intended to be used at compile-time for configuring the behaviour
+of templates, mixins, or other compile-time features.
+</p>
+			<div class="prototype">
+				<code class="lang-d">
+					<div class="single-prototype">
+			<span class="kwd">struct</span> <span class="typ">Params</span>(T)
+			<br/>
+			&nbsp;&nbsp;
+			<br/>
+			<span class="kwd">if</span> <span class="pun">(</span><span class="kwd">is</span><span class="pun">(</span><span class="pln">T </span><span class="pun">== </span><span class="kwd">enum</span><span class="pun">)</span><span class="pun">);</span>
+					</div>
+				</code>
+			</div>
+			<section><p>Credit to Ethan Watson and his wonderful DConf 2019 talk for this idea.
+</p>
+</section>
+
+			<section><h2>Constructors</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../../dext/typecons/Params.this.html" class="public">
+								<code>this</code>
+							</a>
+						</td>
+						<td>Constructs a new parameter set from the specified overrides.
+</td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Fields</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Type</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../../dext/typecons/Params.flagSet.html" class="public"><code>flagSet</code></a>
+						</td>
+						<td class="typecol"><code class="prettyprint lang-d"><span class="typ">bool</span><span class="pun">[</span><span class="pln">members<wbr/></span><span class="pun">.</span><span class="pln">length</span><span class="pun">]</span></code></td><td></td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Aliases</h2>
+				<table>
+					<col class="caption"/>
+					<tr>
+						<th>Name</th><th>Description</th>
+					</tr>
+					<tr>
+						<td>
+							<a href="../../dext/typecons/Params.members.html" class="public">
+								<code>members</code>
+							</a>
+						</td>
+						<td></td>
+					</tr>
+				</table>
+			</section>
+			<section><h2>Examples</h2>
+<pre class="code"><code class="lang-d"><span class="kwd">enum </span><span class="typ">MyConfig </span><span class="pun">: </span><span class="typ">string
+</span><span class="pun">{
+    </span><span class="pln">someOption </span><span class="pun">= </span><span class="str">"do something cool, like a barrel roll"</span><span class="pun">,
+    </span><span class="pln">lazyProcessing </span><span class="pun">= </span><span class="str">"be as lazy as possible"
+</span><span class="pun">}
+
+</span><span class="kwd">alias </span><span class="typ">MyParams </span><span class="pun">= </span><span class="typ">Params</span><span class="pun">!</span><span class="typ">MyConfig</span><span class="pun">;
+
+</span><span class="kwd">struct </span><span class="typ">SomeStruct</span><span class="pun">( </span><span class="typ">MyParams </span><span class="pln">params </span><span class="pun">= </span><span class="typ">MyParams<wbr/></span><span class="pun">.</span><span class="pln">init </span><span class="pun">)
+{
+    </span><span class="kwd">static if</span><span class="pun">( </span><span class="pln">params<wbr/></span><span class="pun">.</span><span class="pln">someOption </span><span class="pun">)
+    {
+        </span><span class="com">// do something cool...
+    </span><span class="pun">}
+
+    </span><span class="kwd">static if</span><span class="pun">( </span><span class="pln">params<wbr/></span><span class="pun">.</span><span class="pln">lazyProcessing </span><span class="pun">)
+    {
+        </span><span class="com">// ...
+    </span><span class="pun">}
+}</span></code></pre>
+</section>
+<section><h2>See Also</h2>
+<p>https://dconf.org/2019/talks/watson.html
+</p>
+</section>
+
+			<footer>
+				<table class="license-info">
+					<tr>
+						<th>Authors</th>
+						<td>
+							<p>Tony J. Hudgins
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>Copyright</th>
+						<td>
+							<p>Copyright © 2019, Tony J. Hudgins
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>License</th>
+						<td>
+							<p>MIT
+</p>
+
+						</td>
+					</tr>
+				</table>
+				<p class="faint">Generated using the DDOX documentation generator</p>
+			</footer>
+		</div>
+	</body>
+</html>

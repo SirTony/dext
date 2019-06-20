@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<title>Function Record.deconstruct</title>
+		<title>Alias OptionFormatter</title>
 		<link rel="stylesheet" type="text/css" href="../../styles/ddox.css"/>
 		<link rel="stylesheet" href="../../prettify/prettify.css" type="text/css"/>
 		<script type="text/javascript" src="../../scripts/jquery.js">/**/</script><script type="text/javascript" src="../../scripts/ddox.js">/**/</script>
@@ -26,7 +26,7 @@ $('#symbolSearchPane').show();</script>
 					</div>
 			<ul class="tree-view">
 				<li>
-					<div class="module ">
+					<div class="module selected">
 						<a href="../../dext/args.html">args</a>
 					</div>
 				</li>
@@ -36,7 +36,7 @@ $('#symbolSearchPane').show();</script>
 					</div>
 				</li>
 				<li>
-					<div class="module selected">
+					<div class="module ">
 						<a href="../../dext/record.html">record</a>
 					</div>
 				</li>
@@ -50,16 +50,12 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Function Record.deconstruct</h1><p></p>
+			<h1>Alias OptionFormatter</h1><p></p>
 			<div class="prototype">
 				<code class="lang-d">
 					<div class="single-prototype">
-			<span class="typ">void</span> <span class="pln">deconstruct</span>
-			<span class="pun">(</span>
-			<br/>
-			&nbsp;&nbsp;<span class="pln">staticMap</span>!(__asPointer,FieldTypeTuple!(typeof(this))) <span class="pln">ptrs</span>
-			<br/>
-			<span class="pun">)</span><span class="pln"> </span><span class="kwd">nothrow @trusted</span><span class="pun">;</span>
+			<span class="kwd">alias</span> <span class="pln">OptionFormatter</span>
+			 <span class="pun">=</span> <span class="typ">string</span> <span class="kwd">delegate</span><span class="pun">(</span><span class="typ">string</span><span class="pun">, </span><span class="pln">std<wbr/></span><span class="pun">.</span><span class="pln">getopt<wbr/></span><span class="pun">.</span><span class="typ">Option</span><span class="pun">[]</span><span class="pun">)</span><span class="pun">;</span>
 					</div>
 				</code>
 			</div>
@@ -78,7 +74,7 @@ $('#symbolSearchPane').show();</script>
 					<tr>
 						<th>Copyright</th>
 						<td>
-							<p>Copyright © 2017-2019, Tony J. Hudgins
+							<p>Copyright © 2019, Tony J. Hudgins
 </p>
 
 						</td>

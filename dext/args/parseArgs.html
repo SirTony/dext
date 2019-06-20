@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"/>
+		<title>parseArgs - multiple declarations</title>
+		<link rel="stylesheet" type="text/css" href="../../styles/ddox.css"/>
+		<link rel="stylesheet" href="../../prettify/prettify.css" type="text/css"/>
+		<script type="text/javascript" src="../../scripts/jquery.js">/**/</script><script type="text/javascript" src="../../scripts/ddox.js">/**/</script>
+	</head>
+	<body onload="setupDdox();">
+		<nav id="main-nav">
+			<noscript>
+				<p style="color: red">The search functionality needs JavaScript enabled</p>
+			</noscript>
+			<div id="symbolSearchPane" style="display: none">
+				<form action="#" method="GET">
+					<input id="symbolSearch" type="text" name="q" placeholder="Search for symbols" autocomplete="off" onchange="performSymbolSearch(40);" onkeypress="this.onchange();" onpaste="this.onchange();" oninput="this.onchange();"/>
+				</form>
+				<ul id="symbolSearchResults" class="symbolList" style="display: none"></ul><script type="application/javascript" src="../../symbols.js"></script><script type="application/javascript">var symbolSearchRootDir = "../../";
+$('#symbolSearchPane').show();</script>
+			</div>
+			<ul class="tree-view">
+				<li class="tree-view ">
+					<div class="package ">
+						<a href="../../dext.html">dext</a>
+					</div>
+			<ul class="tree-view">
+				<li>
+					<div class="module selected">
+						<a href="../../dext/args.html">args</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../../dext/let.html">let</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../../dext/record.html">record</a>
+					</div>
+				</li>
+				<li>
+					<div class="module ">
+						<a href="../../dext/typecons.html">typecons</a>
+					</div>
+				</li>
+			</ul>
+				</li>
+			</ul>
+		</nav>
+		<div id="main-contents">
+			<h1>parseArgs - multiple declarations</h1>
+			<nav class="page-nav">
+				<ul>
+					<li>
+						<a href="#0">
+							Function <code>parseArgs</code>
+						</a>
+					</li>
+					<li>
+						<a href="#1">
+							Function <code>parseArgs</code>
+						</a>
+					</li>
+				</ul>
+			</nav><h2 id="0">Function parseArgs</h2><p>Use std.getopt.getopt to parse command-line arguments into a class or struct.
+</p>
+			<div class="prototype">
+				<code class="lang-d">
+					<div class="single-prototype">
+			<span class="pln">T</span> <span class="pln">parseArgs</span>(T)
+			<span class="pun">(</span>
+			<br/>
+			&nbsp;&nbsp;<span class="kwd">ref </span><span class="typ">string</span><span class="pun">[]</span> <span class="pln">args</span><span class="pun">,</span>
+			<br/>
+			&nbsp;&nbsp;<span class="kwd">lazy </span><a href="../../dext/args/OptionFormatter.html"><span class="typ">OptionFormatter</span></a> <span class="pln">formatter</span> <span class="pun">=</span> <span class="kwd">null</span>
+			<br/>
+			<span class="pun">)</span>
+			<br/>
+			<span class="kwd">if</span> <span class="pun">(</span><span class="kwd">is</span><span class="pun">(</span><span class="pln">T </span><span class="pun">== </span><span class="kwd">class</span><span class="pun">) || </span><span class="kwd">is</span><span class="pun">(</span><span class="pln">T </span><span class="pun">== </span><span class="kwd">struct</span><span class="pun">)</span><span class="pun">);</span>
+					</div>
+				</code>
+			</div>
+			<section><p>This function automatically invokes the constructor for the class or struct and requires a public, parameterless constructor to work.
+Does not take opCall() into account for classes.
+</p>
+
+<p>The caller can optionally provide an [OptionFormatter] delegate to format options into a prett-printed string to display on the help screen.
+If no delegate is provided the default std.getopt.defaultGetoptFormatter function will be used as a fallback.
+</p>
+
+<p>Automatically prints the help text and exits the process when help is requested.
+</p>
+</section>
+
+			<section><h3>Parameters</h3>
+<table><col class="caption"><tr><th>Name</th><th>Description</th></tr>
+<tr><td id="args">args</td><td> The array of arguments provided in main().</td></tr>
+<tr><td id="formatter">formatter</td><td> Optional option formatter.</td></tr>
+</table>
+</section>
+<section><h3>Throws</h3>
+<p>std.getopt.GetoptException if parsing fails.
+</p>
+</section>
+<section><h3>Examples</h3>
+<pre class="code"><code class="lang-d"><span class="kwd">struct <a href="../../dext/args/MyOptions.html"></span><span class="typ">MyOptions</span></a><span class="pln">
+</span><span class="pun">{
+    @<a href="../../dext/args/ShortName.html"></span><span class="typ">ShortName</span></a><span class="pun">( </span><span class="str">'v' </span><span class="pun">)
+    </span><span class="typ">bool </span><span class="pln">verbose</span><span class="pun">;
+}
+
+</span><span class="typ">void </span><span class="pln">main</span><span class="pun">( </span><span class="typ">string</span><span class="pun">[] <a href="../../dext/args/parseArgs.html#args"></span><span class="pln">args</span></a><span class="pln"> </span><span class="pun">)
+{
+    </span><span class="kwd">import </span><span class="pln">std<wbr/></span><span class="pun">.</span><span class="pln">stdio</span><span class="pun">;
+
+    </span><span class="kwd">auto </span><span class="pln">parsed </span><span class="pun">= </span><span class="pln">args<wbr/></span><span class="pun">.</span><span class="pln">parseArgs</span><span class="pun">!<a href="../../dext/args/MyOptions.html"></span><span class="typ">MyOptions</span></a><span class="pun">;
+    </span><span class="pln">writelfn</span><span class="pun">( </span><span class="str">"is verbose? %s"</span><span class="pun">, </span><span class="pln">parsed<wbr/></span><span class="pun">.</span><span class="pln">verbose </span><span class="pun">? </span><span class="str">"yes" </span><span class="pun">: </span><span class="str">"no" </span><span class="pun">);
+}</span></code></pre>
+</section>
+<h2 id="1">Function parseArgs</h2><p>Use std.getopt.getopt to parse command-line arguments into a class or struct.
+</p>
+			<div class="prototype">
+				<code class="lang-d">
+					<div class="single-prototype">
+			<span class="typ">void</span> <span class="pln">parseArgs</span>(T)
+			<span class="pun">(</span>
+			<br/>
+			&nbsp;&nbsp;<span class="kwd">ref </span><span class="typ">string</span><span class="pun">[]</span> <span class="pln">args</span><span class="pun">,</span>
+			<br/>
+			&nbsp;&nbsp;<span class="kwd">ref </span><span class="pln">T</span> <span class="pln">instance</span><span class="pun">,</span>
+			<br/>
+			&nbsp;&nbsp;<span class="kwd">lazy </span><a href="../../dext/args/OptionFormatter.html"><span class="typ">OptionFormatter</span></a> <span class="pln">formatter</span> <span class="pun">=</span> <span class="kwd">null</span>
+			<br/>
+			<span class="pun">)</span>
+			<br/>
+			<span class="kwd">if</span> <span class="pun">(</span><span class="kwd">is</span><span class="pun">(</span><span class="pln">T </span><span class="pun">== </span><span class="kwd">class</span><span class="pun">) || </span><span class="kwd">is</span><span class="pun">(</span><span class="pln">T </span><span class="pun">== </span><span class="kwd">struct</span><span class="pun">)</span><span class="pun">);</span>
+					</div>
+				</code>
+			</div>
+			<section><p>This function takes a reference to an already existing instance of the destination class or struct if manual construction
+is needed prior to parsing.
+</p>
+
+<p>The caller can optionally provide an [OptionFormatter] delegate to format options into a prett-printed string to display on the help screen.
+If no delegate is provided the default std.getopt.defaultGetoptFormatter function will be used as a fallback.
+</p>
+
+<p>Automatically prints the help text and exits the process when help is requested.
+</p>
+</section>
+
+			<section><h3>Parameters</h3>
+<table><col class="caption"><tr><th>Name</th><th>Description</th></tr>
+<tr><td id="args">args</td><td> The array of arguments provided in main().</td></tr>
+<tr><td id="instance">instance</td><td> The instance that will contain parsed values.</td></tr>
+<tr><td id="formatter">formatter</td><td> Optional option formatter.</td></tr>
+</table>
+</section>
+<section><h3>Throws</h3>
+<p>std.getopt.GetoptException if parsing fails.
+</p>
+</section>
+<section><h3>Examples</h3>
+<pre class="code"><code class="lang-d"><span class="kwd">struct <a href="../../dext/args/MyOptions.html"></span><span class="typ">MyOptions</span></a><span class="pln">
+</span><span class="pun">{
+    @<a href="../../dext/args/ShortName.html"></span><span class="typ">ShortName</span></a><span class="pun">( </span><span class="str">'v' </span><span class="pun">)
+    </span><span class="typ">bool </span><span class="pln">verbose</span><span class="pun">;
+
+    </span><span class="typ">string </span><span class="pln">optional</span><span class="pun">;
+
+    </span><span class="kwd">this</span><span class="pun">( </span><span class="typ">string </span><span class="pln">optional </span><span class="pun">)
+    {
+        </span><span class="kwd">this<wbr/></span><span class="pun">.</span><span class="pln">optional </span><span class="pun">= </span><span class="pln">optional</span><span class="pun">;
+    }
+}
+
+</span><span class="typ">void </span><span class="pln">main</span><span class="pun">( </span><span class="typ">string</span><span class="pun">[] <a href="../../dext/args/parseArgs.html#args"></span><span class="pln">args</span></a><span class="pln"> </span><span class="pun">)
+{
+    </span><span class="kwd">import </span><span class="pln">std<wbr/></span><span class="pun">.</span><span class="pln">stdio</span><span class="pun">;
+
+    </span><span class="kwd">auto </span><span class="pln">parsed </span><span class="pun">= <a href="../../dext/args/MyOptions.html"></span><span class="typ">MyOptions</span></a><span class="pun">( </span><span class="str">"some default value" </span><span class="pun">);
+    <a href="../../dext/args/parseArgs.html"></span><span class="pln">args<wbr/></span><span class="pun">.</span><span class="pln">parseArgs</span></a><span class="pun">( </span><span class="pln">parsed </span><span class="pun">);
+    </span><span class="pln">writelfn</span><span class="pun">( </span><span class="str">"optional value: %s"</span><span class="pun">, </span><span class="pln">parsed<wbr/></span><span class="pun">.</span><span class="pln">optional </span><span class="pun">);
+}</span></code></pre>
+</section>
+
+			<footer>
+				<table class="license-info">
+					<tr>
+						<th>Authors</th>
+						<td>
+							<p>Tony J. Hudgins
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>Copyright</th>
+						<td>
+							<p>Copyright © 2019, Tony J. Hudgins
+</p>
+
+						</td>
+					</tr>
+					<tr>
+						<th>License</th>
+						<td>
+							<p>MIT
+</p>
+
+						</td>
+					</tr>
+				</table>
+				<p class="faint">Generated using the DDOX documentation generator</p>
+			</footer>
+		</div>
+	</body>
+</html>

@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="UTF-8"/>
-		<title>Module dext.let</title>
+		<title>Module dext.typecons</title>
 		<link rel="stylesheet" type="text/css" href="../styles/ddox.css"/>
 		<link rel="stylesheet" href="../prettify/prettify.css" type="text/css"/>
 		<script type="text/javascript" src="../scripts/jquery.js">/**/</script><script type="text/javascript" src="../scripts/ddox.js">/**/</script>
@@ -31,7 +31,7 @@ $('#symbolSearchPane').show();</script>
 					</div>
 				</li>
 				<li>
-					<div class="module selected">
+					<div class="module ">
 						<a href="../dext/let.html">let</a>
 					</div>
 				</li>
@@ -41,7 +41,7 @@ $('#symbolSearchPane').show();</script>
 					</div>
 				</li>
 				<li>
-					<div class="module ">
+					<div class="module selected">
 						<a href="../dext/typecons.html">typecons</a>
 					</div>
 				</li>
@@ -50,13 +50,12 @@ $('#symbolSearchPane').show();</script>
 			</ul>
 		</nav>
 		<div id="main-contents">
-			<h1>Module dext.let</h1><p>Provides functionality for unpacking values from collections into local variables,
-similar to C++'s <code class="lang-d"><span class="pln">std</span><span class="pun">::</span><span class="pln">tie</span></code>.
+			<h1>Module dext.typecons</h1><p>Provides some type magic.
 </p><section></section>
 
 			<section></section>
 			<section>
-				<h2>Functions</h2>
+				<h2>Structs</h2>
 				<table>
 					<col class="caption"/>
 					<tr>
@@ -65,12 +64,11 @@ similar to C++'s <code class="lang-d"><span class="pln">std</span><span class="p
 					<tr>
 						<td>
 							<code>
-								<a id="let" class="public" href="../dext/let/let.html">let</a><span class="decoration">(locals)</span>
+								<a id="Params" class="public" href="../dext/typecons/Params.html">Params</a>
 							</code>
 						</td>
-						<td>Unpacks forward ranges, input ranges, static arrays,
-dynamic arrays, tuples, and user-defined types (via deconstructor methods)
-into the specified variables.
+						<td>Represents a set of flags built from an enum intended to be used at compile-time for configuring the behaviour
+of templates, mixins, or other compile-time features.
 </td>
 					</tr>
 				</table>
@@ -88,7 +86,7 @@ into the specified variables.
 					<tr>
 						<th>Copyright</th>
 						<td>
-							<p>Copyright © 2017-2019, Tony J. Hudgins
+							<p>Copyright © 2019, Tony J. Hudgins
 </p>
 
 						</td>
