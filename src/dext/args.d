@@ -261,6 +261,7 @@ Automatically prints the help text and exits the process when help is requested.
 
 Params:
     args = The array of arguments provided in main().
+    instance = The instance that will contain parsed values.
     formatter = Optional option formatter.
 
 Throws: std.getopt.GetoptException if parsing fails.
