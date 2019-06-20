@@ -2,10 +2,33 @@
 Provides functionality for easily creating immutable record types.
 
 Authors: Tony J. Hudgins
-Copyright: Copyright © 2017, Tony J. Hudgins
+Copyright: Copyright © 2017-2019, Tony J. Hudgins
 License: MIT
 */
 module dext.record;
+
+import dext.typecons : Params;
+
+/++
+A set of configuration values for changing the behaviour of the Record mixin.
+
+Authors: Tony J. Hudgins
+Copyright: Copyright © 2017-2019, Tony J. Hudgins
+License: MIT
++/
+enum RecordConfig : string
+{
+    /// Suppress automatic constructor generation.
+    suppressCtor = "Suppress automatic constructor generation.",
+
+    /// Automatically generate a [deconstruct] method for use with the [let] module.
+    enableLet = "Automatically generate a deconstruct method for use with the 'let' module.",
+
+    /// Automatically generate [with<FieldName>] methods to create copies with new values.
+    enableMutation = "Automatically generate 'with<fieldName>' methods.",
+}
+
+alias RecordParams = Params!RecordConfig;
 
 /++
 A mixin template for turning a struct into an immutable value type
@@ -21,7 +44,7 @@ a deconstruction method for use with <a href="/dext/dext/let">let</a>. Default i
 All fields on the struct must start with an underscore and be non-public. Both are enforced with static asserts.
 
 Authors: Tony J. Hudgins
-Copyright: Copyright © 2017, Tony J. Hudgins
+Copyright: Copyright © 2017-2019, Tony J. Hudgins
 License: MIT
 
 Examples:
@@ -47,7 +70,7 @@ auto distance( in Point a, in Point b )
 auto dist = distance( a, b );
 ---------
 +/
-mixin template Record( bool includeDestructuring = false )
+mixin template Record( RecordParams params = RecordParams.init )
 {
     import std.traits : FieldTypeTuple, FieldNameTuple, staticMap;
     import std.format : format;
@@ -78,6 +101,7 @@ mixin template Record( bool includeDestructuring = false )
         }
     }
 
+    static if( !params.suppressCtor )
     this( FieldTypeTuple!( typeof( this ) ) args ) @trusted
     {
         static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
@@ -90,6 +114,7 @@ mixin template Record( bool includeDestructuring = false )
         // read-only getter method
         mixin( "auto %s() const pure nothrow @property { return this.%s; }".format( name[1 .. $], name ) );
 
+        static if( params.enableMutation )
         // mutation method
         mixin( {
             import std.array  : appender, join;
@@ -115,7 +140,7 @@ mixin template Record( bool includeDestructuring = false )
         }() );
     }
 
-    static if( includeDestructuring )
+    static if( params.enableLet )
     {
         private alias __asPointer( T ) = T*;
         void deconstruct( staticMap!( __asPointer, FieldTypeTuple!( typeof( this ) ) ) ptrs ) nothrow @trusted
@@ -218,7 +243,7 @@ mixin template Record( bool includeDestructuring = false )
 
     struct Point
     {
-        mixin Record!true;
+        mixin Record!( RecordParams( RecordConfig.enableLet ) );
         private int _x, _y;
     }
 
@@ -237,7 +262,7 @@ mixin template Record( bool includeDestructuring = false )
 
     struct Person
     {
-        mixin Record!true;
+        mixin Record!( RecordParams( RecordConfig.enableLet ) );
 
         private {
             string _firstName;
@@ -254,7 +279,7 @@ mixin template Record( bool includeDestructuring = false )
         private Tuple!( int, int ) _tup;
     }
 
-    auto ext = External( tuple( 50, 100 ) );
+    const ext = External( tuple( 50, 100 ) );
 
     int e1, e2;
     let( e1, e2 ) = ext.tup;
@@ -263,7 +288,7 @@ mixin template Record( bool includeDestructuring = false )
     assert( e2 == 100 );
 
     // test to ensure arrays work
-    auto richardPryor = Person(
+    const richardPryor = Person(
         "Richard",
         [ "Franklin", "Lennox", "Thomas" ],
         "Pryor",
@@ -296,7 +321,7 @@ mixin template Record( bool includeDestructuring = false )
     assert( a.toHash() != b.toHash() );
 
     auto c = Size( 50, 100 );
-    auto d = Rectangle( a, c );
+    const d = Rectangle( a, c );
 
     assert( d.location == a );
     assert( d.size == c );

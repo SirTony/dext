@@ -3,7 +3,7 @@ Provides functionality for unpacking values from collections into local variable
 similar to C++'s `std::tie`.
 
 Authors: Tony J. Hudgins
-Copyright: Copyright © 2017, Tony J. Hudgins
+Copyright: Copyright © 2017-2019, Tony J. Hudgins
 License: MIT
 */
 module dext.let;
@@ -14,7 +14,7 @@ dynamic arrays, tuples, and user-defined types (via deconstructor methods)
 into the specified variables.
 
 Authors: Tony J. Hudgins
-Copyright: Copyright © 2017, Tony J. Hudgins
+Copyright: Copyright © 2017-2019, Tony J. Hudgins
 License: MIT
 
 Examples:
