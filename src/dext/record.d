@@ -279,7 +279,7 @@ mixin template Record( RecordParams params = RecordParams.init )
         private Tuple!( int, int ) _tup;
     }
 
-    const ext = External( tuple( 50, 100 ) );
+    auto ext = External( tuple( 50, 100 ) );
 
     int e1, e2;
     let( e1, e2 ) = ext.tup;
@@ -288,7 +288,7 @@ mixin template Record( RecordParams params = RecordParams.init )
     assert( e2 == 100 );
 
     // test to ensure arrays work
-    const richardPryor = Person(
+    auto richardPryor = Person(
         "Richard",
         [ "Franklin", "Lennox", "Thomas" ],
         "Pryor",
@@ -321,7 +321,7 @@ mixin template Record( RecordParams params = RecordParams.init )
     assert( a.toHash() != b.toHash() );
 
     auto c = Size( 50, 100 );
-    const d = Rectangle( a, c );
+    auto d = Rectangle( a, c );
 
     assert( d.location == a );
     assert( d.size == c );

@@ -395,8 +395,8 @@ version( unittest )
 
 @system unittest
 {
-    const args = [ "test.exe", "-v", "--color=green" ];
-    const parsed = args.parseArgs!MyOptions;
+    auto args = [ "test.exe", "-v", "--color=green" ];
+    auto parsed = args.parseArgs!MyOptions;
 
     assert( parsed.verbose );
     assert( parsed.color == Color.green );
