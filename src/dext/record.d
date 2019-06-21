@@ -102,10 +102,12 @@ mixin template Record( RecordParams params = RecordParams.init )
     }
 
     static if( !params.suppressCtor )
-    this( FieldTypeTuple!( typeof( this ) ) args ) @trusted
     {
-        static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
-            __traits( getMember, this, name ) = args[i];
+        this( FieldTypeTuple!( typeof( this ) ) args ) @trusted
+        {
+            static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
+                __traits( getMember, this, name ) = args[i];
+        }
     }
 
     // generate getters and mutation methods
@@ -119,7 +121,6 @@ mixin template Record( RecordParams params = RecordParams.init )
         mixin( {
             import std.array  : appender, join;
             import std.uni    : toUpper;
-            //import std.string : toUpper;
 
             enum trimmed = name[1 .. $];
             enum upperName = name.length == 1 ? trimmed.toUpper() : "%s%s".format( trimmed[0].toUpper(), trimmed[1 .. $] );
@@ -243,7 +244,7 @@ mixin template Record( RecordParams params = RecordParams.init )
 
     struct Point
     {
-        mixin Record!( RecordParams( RecordConfig.enableLet ) );
+        mixin Record!( RecordParams.ofEnableLet );
         private int _x, _y;
     }
 
@@ -262,7 +263,7 @@ mixin template Record( RecordParams params = RecordParams.init )
 
     struct Person
     {
-        mixin Record!( RecordParams( RecordConfig.enableLet ) );
+        mixin Record!( RecordParams.ofEnableLet );
 
         private {
             string _firstName;
