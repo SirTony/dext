@@ -94,6 +94,19 @@ struct Params( T ) if( is( T == enum ) )
     }
 
     /++
+    Constructs a new parameter set from all possible values.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2019, Tony J. Hudgins
+    License: MIT
+    +/
+    static Self all() pure nothrow @property
+    {
+        import std.traits : EnumMembers;
+        return Self( EnumMembers!T );
+    }
+
+    /++
     Constructs a new parameter set from the specified overrides.
 
     All flags not present in this constructor will default to [false].
@@ -105,7 +118,7 @@ struct Params( T ) if( is( T == enum ) )
     Copyright: Copyright © 2019, Tony J. Hudgins
     License: MIT
     +/
-    this( T[] flags... )
+    this( inout( T )[] flags... )
     {
         foreach( item; flags )
         {
@@ -113,4 +126,96 @@ struct Params( T ) if( is( T == enum ) )
             this.flagSet[idx] = true;
         }
     }
+
+    /++
+    Copy constructor.
+
+    Params:
+        other = The object to copy from.
+
+    Authors: Tony J. Hudgins
+    Copyright: Copyright © 2019, Tony J. Hudgins
+    License: MIT
+    +/
+    this( ref return scope inout Self other )
+    {
+        this.flagSet[] = other.flagSet[];
+    }
+
+    bool opBinary( string op )( inout T rhs ) inout if( op == "&" )
+    {
+        auto idx = Self.hashToIndex[rhs.hashOf()];
+        return this.flagSet[idx];
+    }
+
+    bool opBinary( string op )( inout Self rhs ) inout if( op == "&" )
+    {
+        return this.flagSet == rhs.flagSet;
+    }
+
+    Self opBinary( string op )( inout T rhs ) if( op == "|" || op == "^" )
+    {
+        auto copy = this;
+        auto idx = Self.hashToIndex[rhs.hashOf()];
+
+        static if( op == "|" )      copy.flagSet[idx] = true;
+        else static if( op == "^" ) copy.flagSet[idx] = false;
+        else static assert( false, op ~ " is unsupported" );
+
+        return copy;
+    }
+
+    Self opBinary( string opt )( inout Self rhs ) if( op == "|" || op == "^" )
+    {
+        auto copy = this;
+
+        foreach( i, x; rhs.flagSet )
+        static if( op == "|" )      { if( x ) copy.flagSet[i] = true;  }
+        else static if( op == "^" ) { if( x ) copy.flagSet[i] = false; }
+        else static assert( false, op ~ " is unsupported" );
+
+        return copy;
+    }
+
+    bool opBinaryRight( string op )( inout T lhs ) if( op == "&" )
+    {
+        return this.opBinary!( op )( lhs );
+    }
+
+    Self opBinaryRight( string op )( inout T lhs ) if( op == "|" || op == "^" )
+    {
+        return this.opBinary!( op )( lhs );
+    }
+
+    bool opBinaryRight( string op )( inout T lhs ) if( op == "in" )
+    {
+        return this.opBinary!( "&" )( lhs );
+    }
+}
+
+version( unittest )
+{
+    enum Test
+    {
+        foo,
+        bar,
+        baz,
+    }
+
+    alias TestParams = Params!Test;
+}
+
+@system unittest
+{
+    auto x = TestParams.ofFoo;
+    assert( x.foo, "x.foo" );
+
+    x = x | Test.bar;
+    assert( x.bar, "x.bar" );
+
+    x = x ^ Test.bar;
+    assert( !x.bar, "!x.bar" );
+
+    assert( x & Test.foo, "x & foo" );
+    assert( Test.foo in x, "foo in x" );
 }

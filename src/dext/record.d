@@ -26,6 +26,9 @@ enum RecordConfig : string
 
     /// Automatically generate [with<FieldName>] methods to create copies with new values.
     enableMutation = "Automatically generate 'with<fieldName>' methods.",
+
+    /// Automatically generate setters for all fields, making the records mutable.
+    enableSetters = "Automatically generate setters for all fields, making the record mutable.",
 }
 
 alias RecordParams = Params!RecordConfig;
@@ -102,12 +105,10 @@ mixin template Record( RecordParams params = RecordParams.init )
     }
 
     static if( !params.suppressCtor )
+    this( FieldTypeTuple!( typeof( this ) ) args ) @trusted
     {
-        this( FieldTypeTuple!( typeof( this ) ) args ) @trusted
-        {
-            static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
-                __traits( getMember, this, name ) = args[i];
-        }
+        static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
+            __traits( getMember, this, name ) = args[i];
     }
 
     // generate getters and mutation methods
@@ -116,6 +117,12 @@ mixin template Record( RecordParams params = RecordParams.init )
         // read-only getter method
         mixin( "auto %s() const pure nothrow @property { return this.%s; }".format( name[1 .. $], name ) );
 
+        static if( params.enableSetters )
+        mixin(
+            "void %01$s( typeof( this.%02$s ) x ) nothrow @property { this.%02$s = x; }"
+            .format( name[1 .. $], name )
+        );
+
         static if( params.enableMutation )
         // mutation method
         mixin( {
@@ -123,10 +130,16 @@ mixin template Record( RecordParams params = RecordParams.init )
             import std.uni    : toUpper;
 
             enum trimmed = name[1 .. $];
-            enum upperName = name.length == 1 ? trimmed.toUpper() : "%s%s".format( trimmed[0].toUpper(), trimmed[1 .. $] );
+            enum upperName =
+                name.length == 1 ?
+                trimmed.toUpper() :
+                "%s%s".format( trimmed[0].toUpper(), trimmed[1 .. $] );
 
             auto code = appender!string;
-            code.put( "typeof( this ) with%01$s( typeof( this.%02$s ) new%01$s ) @trusted {".format( upperName, name ) );
+            code.put(
+                "typeof( this ) with%01$s( typeof( this.%02$s ) new%01$s ) @trusted {"
+                .format( upperName, name )
+            );
 
             string[] args;
             foreach( other; FieldNameTuple!( typeof( this ) ) )
@@ -143,8 +156,8 @@ mixin template Record( RecordParams params = RecordParams.init )
 
     static if( params.enableLet )
     {
-        private alias __asPointer( T ) = T*;
-        void deconstruct( staticMap!( __asPointer, FieldTypeTuple!( typeof( this ) ) ) ptrs ) nothrow @trusted
+        import dext.traits : asPointer;
+        void deconstruct( staticMap!( asPointer, FieldTypeTuple!( typeof( this ) ) ) ptrs ) nothrow @trusted
         {
             static foreach( i, name; FieldNameTuple!( typeof( this ) ) )
                 *ptrs[i] = __traits( getMember, this, name );
@@ -232,6 +245,17 @@ mixin template Record( RecordParams params = RecordParams.init )
 {
     import std.typecons : Tuple, tuple;
     import dext.let : let;
+
+    struct Mutable
+    {
+        mixin Record!( RecordParams.ofEnableSetters );
+        private int _x;
+    }
+
+    auto mut = Mutable( 5 );
+    assert( mut.x == 5 );
+    mut.x = 10;
+    assert( mut.x == 10 );
 
     final class RecordClass
     {
